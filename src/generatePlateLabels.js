@@ -1,3 +1,15 @@
+/**
+ * Returns an array of labels as strings
+ * @param {object} [options={}]
+ * @param {string} [options.nbRows] - Indicates the number of rows that the well plate will contain (if the input is a letter the number of rows will increase alphabetically until it reaches the letter defined as input).
+ * @param {string} [options.nbColumns] - Indicates the number of columns that the well plate will contain (if the input is a letter the number of rows will increase alphabetically until it reaches the letter defined as input).
+ * @param {number} [options.nbPlates] - Indicates the number of plates to be generated.
+ * @param {number} [options.initPlate] - It referes the plate where the experiment began.
+ * @param {boolean} [options.accountPreviousWells] - For plates where the well label is a number, this option allows to take in count previous labels in the next plate.
+ * @param {string} [options.direction] - For plates where the well label is a number, this option sets the direction in which this will increase.
+ * @return {Object} {labelsList, axis }
+ */
+
 export function generatePlateLabels(options = {}) {
   let {
     nbRows = 'h',

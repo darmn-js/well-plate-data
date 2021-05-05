@@ -202,21 +202,21 @@ describe('Add spectra to the plates', () => {
       parseInt(time[2], 10);
     xAxis.push(seconds);
   }
-  let curves = [];
+  let spectra = [];
   for (let i = 1; i < file[0].length - 1; i++) {
-    let curve = [];
+    let spectrum = [];
     for (let j = 3; j < file.length - 1; j++) {
-      curve.push(file[j][i]);
+      spectrum.push(file[j][i]);
     }
 
-    curves.push({
+    spectra.push({
       x: xAxis,
-      y: curve,
+      y: spectrum,
     });
   }
 
   const plate100Wells = new WellPlateData({ nbRows: 10, nbColumns: 10 });
-  plate100Wells.addSpectrumFromArray(curves);
+  plate100Wells.addSpectrumFromArray(spectra);
   it('Add spectra array to 10 x 10 well plate', () => {
     expect(plate100Wells.wells[0].spectrum.x).toHaveLength(73);
     expect(plate100Wells.wells[0].spectrum.y).toHaveLength(73);

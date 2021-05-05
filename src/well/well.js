@@ -6,7 +6,7 @@ export class Well {
    * @param {String} id - Identificator
    * @param {String} label - Well label
    * @param {Number} plate - Number of the plate
-   * @param {Object} [data={}]
+   * @param {Object} [data={}] - Spectrum and growth curves data
    * @param {Object} [data.growthCurve={}]  - Growth curve obtaineed
    * @param {Array}  [data.growthCurve.x=[]]
    * @param {Array} [data.growthCurve.y=[]]
@@ -116,9 +116,7 @@ export class Well {
 
   /**
    * Sets the reagents constituent of the well
-   * @param {Object} input
-   * @param {Array} [input.x=[]]
-   * @param {Array} [input.y=[]]
+   * @param {Object} reagents - Array of reagents as objects
    */
   addReagents(reagents) {
     if (!Array.isArray(reagents)) {
@@ -128,6 +126,10 @@ export class Well {
     this.reagents = reagents;
   }
 
+  /**
+   * Adds results to the well
+   * @param {Array} result - Object containing the results
+   */
   addResults(result) {
     if (Array.isArray(result) || typeof result !== 'object') {
       throw new Error(`Result must be a object`);

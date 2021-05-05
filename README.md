@@ -18,7 +18,7 @@ This tool allows to arrange and handle the large amount of data generated in wel
 **Options**
 
 * `nbRows`: [number or string (default = 'h')] Indicates the number of rows that the well plate will contain (if the input is a letter the number of rows will increase alphabetically until it reaches the letter defined as input).
-* `nbColumns`: [number or string (default = 12)] Indicates the number of rows that the well plate will contain (if the input is a letter the number of rows will increase alphabetically until it reaches the letter defined as input).
+* `nbColumns`: [number or string (default = 12)] Indicates the number of columns that the well plate will contain (if the input is a letter the number of rows will increase alphabetically until it reaches the letter defined as input).
 * `nbPlates`: [number (default = 1)] Indicates the number of plates to be generated.
 * `initPlate`: [number (default = 0)] It referes the plate where the experiment began.
 * `accountPreviousWells`: [boolean (default = false)] For plates where the well label is a number, this option allows to take in count previous labels in the next plate.
