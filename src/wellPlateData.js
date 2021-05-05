@@ -5,7 +5,6 @@ export class WellPlateData {
   /**
    * Manager of the data regarding a well plates
    * @param {object} [options={}]
-   * @param {array<object>} [options.normalization.filters]
    */
   constructor(options = {}) {
     this.wells = [];
