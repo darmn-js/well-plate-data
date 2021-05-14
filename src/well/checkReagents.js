@@ -15,7 +15,7 @@ export function checkReagents(input) {
     let inputValues = entries.map((item) => item[1]);
     for (let i = 0; i < keys.length - 1; i++) {
       let boolean = inputValues.findIndex(
-        (item) => item === undefined || item === null || item === '',
+        (item) => item === null || item === '',
       );
       if (!boolean) {
         throw new Error(

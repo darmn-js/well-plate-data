@@ -19,8 +19,27 @@ export class WellPlateData {
     this.plateLabels = labelsList;
     for (let i = 0; i < labelsList.length; i++) {
       const label = labelsList[i].split('-');
-      this.wells.push(new Well(label[1], { plate: label[0] }));
+      this.wells.push(
+        new Well({
+          id: labelsList[i],
+          plate: label[0],
+          label: label[1],
+          _highlight: i,
+        })
+      );
     }
+  }
+
+/**
+   * Fills the plate with information coming from external array.
+   * @param {Array} plate - Array containing well data as objects.
+   */
+  fillPlateFromArray(plate) {
+    let wells = [];
+    for (let well of plate) {
+      wells.push(new Well(well))
+    }
+    this.wells = wells;
   }
 
   /**
@@ -108,8 +127,13 @@ export class WellPlateData {
    * Returns an array of objects with the corresponding labels to each well
    * @returns {Array}
    */
-  getPlateLabels() {
-    return this.plateLabels.map((item) => ({ label: item }));
+  getPlateTemplate() {
+    return this.plateLabels.map((item, index) => ({
+      index: index,
+      label: item,
+      selected: false,
+      _highlight: index
+    }));
   }
 
   /**
@@ -138,5 +162,31 @@ export class WellPlateData {
       sampleLabels.push(replicatesLabels);
     }
     return sampleLabels;
+  }
+
+    /**
+   * Returns an array of objects with the corresponding labels to each well
+   * @returns {Array}
+   */
+  getWells(options = {}) {
+    const { ids } = options;
+    let wells = [];
+    for (let well of this.wells) {
+      if (!ids || ids.includes(well.id)) wells.push(well);
+    }
+    return wells;
+  }
+
+      /**
+   * Returns an array of objects with the corresponding labels to each well
+   * @returns {Array}
+   */
+  getWell(options = {}) {
+    const { id } = options;
+    for (let well of this.wells) {
+      if (id === well.id) {
+        return well;
+      }
+    }
   }
 }

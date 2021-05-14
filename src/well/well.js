@@ -1,4 +1,3 @@
-import { checkReagents } from './checkReagents';
 import { getRandomId } from './getRandomId';
 
 export class Well {
@@ -17,15 +16,18 @@ export class Well {
    * @param {Object} [options.metadata={}] - Metadata relate to the well
    * @param {Array} [options.reagents=[]] - Rctants used in the well
    */
-  constructor(label, options = {}) {
+  constructor(options = {}) {
     let {
       id = getRandomId(),
+      label = undefined,
       plate,
       metadata = {},
       reagents = [],
       results = [],
+      _highlight = getRandomId()
     } = options;
     this.id = id;
+    this.selected = false;
     this.label = label;
     this.plate = plate;
     this.results = results;
@@ -37,6 +39,7 @@ export class Well {
     this.growthCurve.y = [];
     this.spectrum.x = [];
     this.spectrum.y = [];
+    this._highlight = _highlight;
   }
 
   /**
@@ -122,8 +125,32 @@ export class Well {
     if (!Array.isArray(reagents)) {
       throw new Error(`Reagents must be a vector of objects`);
     }
-    checkReagents(reagents);
-    this.reagents = reagents;
+    if (this.reagents.length === 0) {
+      this.reagents = reagents;
+    } else {
+      let newReagents = [];
+      for (let i = 0; i < reagents.length; i++) {
+        let previousReagents = this.reagents[i] ? this.reagents[i] : {};
+        newReagents.push(Object.assign({}, previousReagents, reagents[i]));
+      }
+      this.reagents = newReagents;
+    }
+  }
+
+  /**
+   * Sets the reagents constituent of the well
+   * @param {Object} reagents - Array of reagents as objects
+   */
+  updateReagents(reagents) {
+    if (!Array.isArray(reagents)) {
+      throw new Error(`Reagents must be a vector of objects`);
+    }
+    let newReagents = [];
+    for (let reagent of reagents) {
+      let previousReagent = this.reagents.filter((item) => item.label === reagent.label)[0];
+      newReagents.push(Object.assign({}, previousReagent, reagent));
+    }
+    this.reagents = newReagents;
   }
 
   /**

@@ -1,7 +1,7 @@
 import { Well } from '../well';
 
 describe('Spectrum', () => {
-  const testWell = new Well('A1', { metadata: { time: 1233 } });
+  const testWell = new Well({ label: 'A1', metadata: { time: 1233 } });
   let x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   let y = [0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100];
 
