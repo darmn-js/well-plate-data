@@ -25,19 +25,19 @@ export class WellPlateData {
           plate: label[0],
           label: label[1],
           _highlight: i,
-        })
+        }),
       );
     }
   }
 
-/**
+  /**
    * Fills the plate with information coming from external array.
    * @param {Array} plate - Array containing well data as objects.
    */
   fillPlateFromArray(plate) {
     let wells = [];
     for (let well of plate) {
-      wells.push(new Well(well))
+      wells.push(new Well(well));
     }
     this.wells = wells;
   }
@@ -132,7 +132,7 @@ export class WellPlateData {
       index: index,
       label: item,
       selected: false,
-      _highlight: index
+      _highlight: index,
     }));
   }
 
@@ -164,7 +164,7 @@ export class WellPlateData {
     return sampleLabels;
   }
 
-    /**
+  /**
    * Returns an array of objects with the corresponding labels to each well
    * @returns {Array}
    */
@@ -177,7 +177,7 @@ export class WellPlateData {
     return wells;
   }
 
-      /**
+  /**
    * Returns an array of objects with the corresponding labels to each well
    * @returns {Array}
    */
@@ -188,5 +188,68 @@ export class WellPlateData {
         return well;
       }
     }
+  }
+
+  readTemplate(string, options = {}) {
+    const { separator = ',' } = options;
+    const list = string.split('\n').map((row) => row.split(separator));
+    const type = list[0][0] === 'row' ? true : false;
+    let wells = [];
+    if (type) {
+      for (let i = 1; i < list.length; i++) {
+        let well = {
+          id: `1-${list[i][0].concat(list[i][1])}`,
+          reagents: [],
+        };
+        for (let j = 2; j < list[0].length; j++) {
+          well.reagents.push({
+            label: list[0][j],
+            concentration: parseFloat(list[i][j])
+          });
+        }
+        wells.push(well);
+      }
+    } else {
+      for (let i = 1; i < list.length; i++) {
+        let well = {
+          id: `1-${list[i][0]}`,
+          reagents: [],
+        };
+        for (let j = 1; j < list[0].length; j++) {
+          well.reagents.push({
+            label: list[0][j],
+            concentration: parseFloat(list[i][j])
+          });
+        }
+        wells.push(well);
+      }
+    }
+
+    for (let i = 0; i < wells.length; i++) {
+      const selectedWell = this.getWell({ id: wells[i].id });
+      selectedWell.updateReagents(wells[i].reagents);
+    }
+  }
+
+  /**
+   * Returns a string with CSV format
+   * @returns {string}
+   */
+  getTemplate(options = {}) {
+    const { separator = ',' } = options;
+    const plate = this.wells;
+    const regex = /(?:[0-9]+)|(?:[a-zA-Z]+)/g;
+    let label = plate[0].label;
+    let reagents = plate[0].reagents.map((item) => item.label);
+    let splittedLabel = label.match(regex);
+    let header = splittedLabel.length === 2 ? ['row', 'column'] : ['well'];
+    header = header.concat(reagents);
+    const list = [header];
+    for (let well of plate) {
+      splittedLabel = well.label.match(regex);
+      reagents = well.reagents.map((item) => item.concentration);
+      list.push(splittedLabel.concat(reagents));
+    }
+    return list.map((well) => well.join(separator)).join('\n');
   }
 }
