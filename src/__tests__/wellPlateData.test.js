@@ -281,26 +281,6 @@ describe('Add results to the plates', () => {
   });
 });
 
-describe('Get plate labels', () => {
-  const plate100Wells = new WellPlateData({ nbRows: 10, nbColumns: 10 });
-  const plate100Labels = plate100Wells.getPlateTemplate();
-  it('Get plate labels from 10 x 10 well plate', () => {
-    expect(plate100Labels[0]).toStrictEqual({ index: 0, label: '1-1', selected: false, _highlight: 0 });
-    expect(plate100Labels[1]).toStrictEqual({ index: 1, label: '1-2', selected: false, _highlight: 1 });
-    expect(plate100Labels[98]).toStrictEqual({ index: 98, label: '1-99', selected: false, _highlight: 98 });
-    expect(plate100Labels[99]).toStrictEqual({ index: 99, label: '1-100', selected: false, _highlight: 99 });
-  });
-
-  const plate96Wells = new WellPlateData();
-  const plate96Labels = plate96Wells.getPlateTemplate();
-  it('Get plate labels from H x 12 well plate', () => {
-    expect(plate96Labels[0]).toStrictEqual({ index: 0, label: '1-A1', selected: false, _highlight: 0 });
-    expect(plate96Labels[1]).toStrictEqual({ index: 1, label: '1-A2', selected: false, _highlight: 1 });
-    expect(plate96Labels[94]).toStrictEqual({ index: 94, label: '1-H11', selected: false, _highlight: 94 });
-    expect(plate96Labels[95]).toStrictEqual({ index: 95, label: '1-H12', selected: false, _highlight: 95 });
-  });
-});
-
 describe('Get well samples', () => {
   let file = readFileSync(
     join(__dirname, '../testFiles/example_reagents.csv'),

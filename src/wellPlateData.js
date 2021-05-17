@@ -1,5 +1,6 @@
+import { addChartStyle } from './addChartStyle'
+import { checkReagents } from './checkReagents';
 import { generatePlateLabels } from './generatePlateLabels';
-import { checkReagents } from './well/checkReagents';
 import { Well } from './well/well';
 
 export class WellPlateData {
@@ -17,7 +18,6 @@ export class WellPlateData {
     this.wells = [];
     let plateLabels = generatePlateLabels(options);
     const labelsList = plateLabels.labelsList;
-    this.plateLabels = labelsList;
     for (let i = 0; i < labelsList.length; i++) {
       const label = labelsList[i].split('-');
       this.wells.push(
@@ -80,8 +80,14 @@ export class WellPlateData {
     }
     for (let well of this.wells) {
       const spectrum = spectra.filter((item) => item.label === well.label)[0];
-      if (spectrum === undefined ) continue;
-      well.addSpectrum(spectrum.array);
+      if (spectrum !== undefined ) {
+        well.metadata.display = true;
+        well.metadata.color = 'red';
+        well.addSpectrum(spectrum.array);
+      } else {
+        well.metadata.display = false;
+        well.metadata.color = 'darkgrey';
+      }
     }
   }
 
@@ -110,8 +116,14 @@ export class WellPlateData {
     }
     for (let well of this.wells) {
       const growthCurve = growthCurves.filter((item) => item.label === well.label)[0];
-      if (growthCurve === undefined ) continue;
-      well.addGrowthCurve(growthCurve.array);
+      if (growthCurve !== undefined ) {
+        well.metadata.display = true;
+        well.metadata.color = 'red';
+        well.addGrowthCurve(growthCurve.array);
+      } else {
+        well.metadata.display = false;
+        well.metadata.color = 'darkgrey';
+      }
     }
   }
 
@@ -126,19 +138,6 @@ export class WellPlateData {
     for (let i = 0; i < this.wells.length; i++) {
       this.wells[i].addResults(results[i]);
     }
-  }
-
-  /**
-   * Returns an array of objects with the corresponding labels to each well
-   * @returns {Array}
-   */
-  getPlateTemplate() {
-    return this.plateLabels.map((item, index) => ({
-      index: index,
-      label: item,
-      selected: false,
-      _highlight: index,
-    }));
   }
 
   /**
@@ -271,5 +270,59 @@ export class WellPlateData {
     for (let well of wells) {
       checkReagents(well, options);
     }
+  }
+
+  /**
+   * Checks out if the reagents contain the needed information
+   * @param {Object} [options={}]
+   * @param {Boolean} [options.checkKeys] - Parameter that allows to check the keys of the reagents object
+   * @param {Boolean} [options.checkValues] - Parameter that allows to check that the values are defined
+   * @param {Array} [options.keys] - Array of keys to check
+   */
+
+  getSpectraChart(options = {}) {
+    const { ids } = options;
+    const wells = this.wells;
+    let chart = {
+      data: [],
+    };
+
+    for (let well of wells) {
+      if (!ids || ids.includes(well.id)) {
+        if (well.spectrum.x.length && well.spectrum.y.length) {
+          const data = well.spectrum;
+          addChartStyle(data, well);
+          chart.data.push(data);
+        }
+      }
+    }
+    return chart;
+  }
+
+    /**
+   * Checks out if the reagents contain the needed information
+   * @param {Object} [options={}]
+   * @param {Boolean} [options.checkKeys] - Parameter that allows to check the keys of the reagents object
+   * @param {Boolean} [options.checkValues] - Parameter that allows to check that the values are defined
+   * @param {Array} [options.keys] - Array of keys to check
+   */
+
+  getGrowthCurveChart(options = {}) {
+    const { ids } = options;
+    const wells = this.wells;
+    let chart = {
+      data: [],
+    };
+
+    for (let well of wells) {
+      if (!ids || ids.includes(well.id)) {
+        if (well.growthCurve.x.length && well.growthCurve.y.length) {
+          const data = well.growthCurve;
+          addChartStyle(data, well);
+          chart.data.push(data);
+        }
+      }
+    }
+    return chart;
   }
 }
