@@ -217,6 +217,7 @@ describe('Add spectra to the plates', () => {
 
   const plate100Wells = new WellPlateData({ nbRows: 10, nbColumns: 10 });
   plate100Wells.addSpectrumFromArray(spectra);
+  plate100Wells.updateSamples();
   it('Add spectra array to 10 x 10 well plate', () => {
     expect(plate100Wells.wells[0].spectrum.x).toHaveLength(73);
     expect(plate100Wells.wells[0].spectrum.y).toHaveLength(73);
@@ -278,93 +279,5 @@ describe('Add results to the plates', () => {
       name: 'IC50',
       value: 55,
     });
-  });
-});
-
-describe('Get well samples', () => {
-  let file = readFileSync(
-    join(__dirname, '../testFiles/example_reagents.csv'),
-    'utf8',
-  );
-  file = parse(file, { delimiter: ',', dynamicTyping: true }).data;
-
-  let reagentsExample = [];
-  for (let i = 1; i < file.length; i++) {
-    if (file[i][0] === null) continue;
-    let row = [];
-    for (let j = 2; j < file[0].length; j++) {
-      row.push({
-        reference: `reference${i}`,
-        batch: file[0][j],
-        uuid: i,
-        concentration: file[i][j],
-      });
-    }
-    reagentsExample.push(row);
-  }
-
-  const plate96Wells = new WellPlateData();
-  plate96Wells.addReagentsFromArray(reagentsExample);
-  const samplesIDs = plate96Wells.getSamplesIDs();
-  it('Add reagents array to H x 12 well plate', () => {
-    expect(samplesIDs).toStrictEqual([
-      [
-        'A1',
-        'A2',
-        'A3',
-        'A4',
-        'A5',
-        'A6',
-        'A7',
-        'A8',
-        'A9',
-        'A10',
-        'A11',
-        'A12',
-        'B1',
-        'B12',
-        'C1',
-        'C12',
-        'D1',
-        'D12',
-        'E1',
-        'E12',
-        'F1',
-        'F12',
-        'G1',
-        'G12',
-        'H1',
-        'H2',
-        'H3',
-        'H4',
-        'H5',
-        'H6',
-        'H7',
-        'H8',
-        'H9',
-        'H10',
-        'H11',
-        'H12',
-      ],
-      ['B2', 'C2', 'D2', 'E2', 'F2', 'G2'],
-      ['B3', 'C3', 'D3'],
-      ['B4', 'C4', 'D4'],
-      ['B5', 'C5', 'D5'],
-      ['B6', 'C6', 'D6'],
-      ['B7', 'C7', 'D7'],
-      ['B8', 'C8', 'D8'],
-      ['B9', 'B10', 'B11'],
-      ['C9', 'C10', 'C11'],
-      ['D9', 'D10', 'D11'],
-      ['E3', 'F3', 'G3'],
-      ['E4', 'F4', 'G4'],
-      ['E5', 'F5', 'G5'],
-      ['E6', 'F6', 'G6'],
-      ['E7', 'F7', 'G7'],
-      ['E8', 'F8', 'G8'],
-      ['E9', 'E10', 'E11'],
-      ['F9', 'F10', 'F11'],
-      ['G9', 'G10', 'G11'],
-    ]);
   });
 });

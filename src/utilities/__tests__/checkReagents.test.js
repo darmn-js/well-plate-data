@@ -1,6 +1,6 @@
 /* eslint-disable jest/no-try-expect */
+import { Well } from '../../well/well';
 import { checkReagents } from '../checkReagents';
-import { Well } from '../well/well';
 
 describe('test get random id function', () => {
 

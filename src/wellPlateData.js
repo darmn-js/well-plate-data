@@ -1,6 +1,10 @@
-import { addChartStyle } from './addChartStyle'
-import { checkReagents } from './checkReagents';
-import { generatePlateLabels } from './generatePlateLabels';
+import { PlateSample } from './plateSample'
+import { addChartStyle } from './utilities/addChartStyle'
+import { averageArrays } from './utilities/averageArrays';
+import { checkReagents } from './utilities/checkReagents';
+import { generatePlateLabels } from './utilities/generatePlateLabels';
+import { getRandomId } from './utilities/getRandomId';
+import { getSamplesIDs } from './utilities/getSamplesIDs';
 import { Well } from './well/well';
 
 export class WellPlateData {
@@ -16,6 +20,7 @@ export class WellPlateData {
    */
   constructor(options = {}) {
     this.wells = [];
+    this.samples = [];
     let plateLabels = generatePlateLabels(options);
     const labelsList = plateLabels.labelsList;
     for (let i = 0; i < labelsList.length; i++) {
@@ -41,6 +46,7 @@ export class WellPlateData {
       wells.push(new Well(well));
     }
     this.wells = wells;
+    this.updateSamples();
   }
 
   /**
@@ -56,6 +62,7 @@ export class WellPlateData {
     for (let i = 0; i < this.wells.length; i++) {
       this.wells[i].addReagents(reagents[i]);
     }
+    this.updateSamples();
   }
 
   /**
@@ -89,6 +96,7 @@ export class WellPlateData {
         well.metadata.color = 'darkgrey';
       }
     }
+    this.updateSamples();
   }
 
   /**
@@ -125,6 +133,7 @@ export class WellPlateData {
         well.metadata.color = 'darkgrey';
       }
     }
+    this.updateSamples();
   }
 
   /**
@@ -138,34 +147,6 @@ export class WellPlateData {
     for (let i = 0; i < this.wells.length; i++) {
       this.wells[i].addResults(results[i]);
     }
-  }
-
-  /**
-   * Returns an array of objects containing IDs of the wells with the same reagents and the corresponding key reagents
-   * @returns {Array}
-   */
-  getSamplesIDs() {
-    const wells = this.wells;
-    let sampleWells = [];
-    let sampleLabels = [];
-    for (let i = 0; i < wells.length; i++) {
-      let replicated = JSON.stringify(
-        wells[i].reagents.map((item) => item.concentration),
-      );
-      let feature = sampleWells.find((element) => element === replicated);
-      if (feature + 1) continue;
-      sampleWells.push(replicated);
-      const replicatesLabels = wells
-        .filter(
-          (item) =>
-            JSON.stringify(
-              item.reagents.map((element) => element.concentration),
-            ) === replicated,
-        )
-        .map((item) => item.label);
-      sampleLabels.push(replicatesLabels);
-    }
-    return sampleLabels;
   }
 
   /**
@@ -233,6 +214,7 @@ export class WellPlateData {
       const selectedWell = this.getWell({ id: wells[i].id });
       selectedWell.updateReagents(wells[i].reagents);
     }
+    this.updateSamples();
   }
 
   /**
@@ -324,5 +306,99 @@ export class WellPlateData {
       }
     }
     return chart;
+  }
+
+  getChartOfSpectraSamples(options) {
+    let chart = {
+      data: []
+    };
+
+    let samples = this.getSamples(options);
+    for (let sample of samples) {
+      const data = sample.averagedSpectra;
+      addChartStyle(data, sample);
+      chart.data.push(data)
+    }
+    return chart;
+  }
+
+  getChartOfGrowthCurvesSamples(options) {
+    let chart = {
+      data: []
+    };
+
+    let samples = this.getSamples(options);
+    for (let sample of samples) {
+      const data = sample.averagedGrowthCurves;
+      addChartStyle(data, sample);
+      chart.data.push(data)
+    }
+    return chart;
+  }
+
+  /**
+   * Returns an array of objects with the corresponding labels to each well
+   * @returns {Array}
+   */
+
+
+  getSamples(options = {}) {
+    const {
+      ids
+    } = options;
+    let samples = [];
+
+    for (let sample of this.samples) {
+      if (!ids || ids.includes(sample.id)) samples.push(sample);
+    }
+    return samples;
+  }
+  /**
+   * Returns an array of objects with the corresponding labels to each well
+   * @returns {Array}
+   */
+
+
+  getSample(options = {}) {
+    const {
+      id
+    } = options;
+
+    for (let sample of this.samples) {
+      if (id === sample.id) return sample;
+    }
+  }
+}
+
+WellPlateData.prototype.updateSamples = function() {
+  if (!this.samples.length) {
+    const samplesIDs = getSamplesIDs(this.wells);
+    let samples = [];
+    for (let sampleIDs of samplesIDs) {
+      const label = sampleIDs.map(item => item.split('-')[1]).join('-');
+      const wells = sampleIDs.map(item => ({ id: item, inAverage: true }));
+      samples.push(
+        new PlateSample({
+          id: getRandomId(),
+          label: label,
+          wells: wells,
+          metadata: {
+            color: 'blue',
+            display: true
+          },
+        })
+      );
+    }
+    this.samples = samples;
+  } else {
+    const samples = this.samples;
+    for (let sample of samples) {
+      const ids = sample.wells.map((item) => (item.id));
+      const wells = this.getWells({ ids });
+      const spectra = wells.map((item) => (item.spectrum));
+      const growthCurves = wells.map((item) => (item.growthCurve));
+      sample.averagedSpectra = averageArrays(spectra);
+      sample.averagedGrowthCurves = averageArrays(growthCurves);
+    }
   }
 }

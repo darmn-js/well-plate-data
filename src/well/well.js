@@ -1,4 +1,4 @@
-import { getRandomId } from './getRandomId';
+import { getRandomId } from '../utilities/getRandomId';
 
 export class Well {
   /**
