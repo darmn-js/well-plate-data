@@ -20,10 +20,7 @@ export function generatePlateLabels(options = {}) {
     direction = 'horizontal',
   } = options;
 
-  let entries = Object.entries({
-    rows: nbRows,
-    columns: nbColumns,
-  });
+  let entries = Object.entries({ rows: nbRows, columns: nbColumns });
 
   for (let i = 0; i < entries.length; i++) {
     if (Number.isNaN(parseInt(entries[i][1], 10))) {

@@ -88,8 +88,8 @@ export class WellPlateData {
     for (let well of this.wells) {
       const spectrum = spectra.filter((item) => item.label === well.label)[0];
       if (spectrum !== undefined ) {
-        well.metadata.display = true;
-        well.metadata.color = 'red';
+        well.metadata.display = false;
+        well.metadata.color = 'black';
         well.addSpectrum(spectrum.array);
       } else {
         well.metadata.display = false;
@@ -125,8 +125,8 @@ export class WellPlateData {
     for (let well of this.wells) {
       const growthCurve = growthCurves.filter((item) => item.label === well.label)[0];
       if (growthCurve !== undefined ) {
-        well.metadata.display = true;
-        well.metadata.color = 'red';
+        well.metadata.display = false;
+        well.metadata.color = 'black';
         well.addGrowthCurve(growthCurve.array);
       } else {
         well.metadata.display = false;
@@ -173,48 +173,6 @@ export class WellPlateData {
         return well;
       }
     }
-  }
-
-  readTemplate(string, options = {}) {
-    const { separator = ',' } = options;
-    const list = string.split('\n').map((row) => row.split(separator));
-    const type = list[0][0] === 'row' ? true : false;
-    let wells = [];
-    if (type) {
-      for (let i = 1; i < list.length; i++) {
-        let well = {
-          id: `1-${list[i][0].concat(list[i][1])}`,
-          reagents: [],
-        };
-        for (let j = 2; j < list[0].length; j++) {
-          well.reagents.push({
-            label: list[0][j],
-            concentration: parseFloat(list[i][j])
-          });
-        }
-        wells.push(well);
-      }
-    } else {
-      for (let i = 1; i < list.length; i++) {
-        let well = {
-          id: `1-${list[i][0]}`,
-          reagents: [],
-        };
-        for (let j = 1; j < list[0].length; j++) {
-          well.reagents.push({
-            label: list[0][j],
-            concentration: parseFloat(list[i][j])
-          });
-        }
-        wells.push(well);
-      }
-    }
-
-    for (let i = 0; i < wells.length; i++) {
-      const selectedWell = this.getWell({ id: wells[i].id });
-      selectedWell.updateReagents(wells[i].reagents);
-    }
-    this.updateSamples();
   }
 
   /**
@@ -367,6 +325,64 @@ export class WellPlateData {
     for (let sample of this.samples) {
       if (id === sample.id) return sample;
     }
+  }
+
+  /**
+   * Create WellPlateData from CSV and TSV files
+   * @param {string} text
+   * @param {object} [options={}]
+   * @param {object} [options.separator=',']
+   */
+  static readTemplate(string, options = {}) {
+    const { separator = ',' } = options;
+    const list = string.split('\n').map((row) => row.split(separator));
+    const type = list[0][0] === 'row' ? true : false;
+    let wells = [];
+    let wellPlateData;
+    let dimensions;
+    if (type) {
+      dimensions = { nbRows: 'h', nbColumns: 12 };
+      wellPlateData = new WellPlateData(dimensions)
+      for (let i = 1; i < list.length; i++) {
+        let well = {
+          id: `1-${list[i][0].concat(list[i][1])}`,
+          reagents: [],
+        };
+        for (let j = 2; j < list[0].length; j++) {
+          well.reagents.push({
+            label: list[0][j],
+            concentration: parseFloat(list[i][j])
+          });
+        }
+        wells.push(well);
+      }
+    } else {
+      dimensions = { nbRows: 10, nbColumns: 10 };
+      wellPlateData = new WellPlateData(dimensions)
+      for (let i = 1; i < list.length; i++) {
+        let well = {
+          id: `1-${list[i][0]}`,
+          reagents: [],
+        };
+        for (let j = 1; j < list[0].length; j++) {
+          well.reagents.push({
+            label: list[0][j],
+            concentration: parseFloat(list[i][j])
+          });
+        }
+        wells.push(well);
+      }
+    }
+
+    for (let i = 0; i < wells.length; i++) {
+      const selectedWell = wellPlateData.getWell({ id: wells[i].id });
+      selectedWell.updateReagents(wells[i].reagents);
+    }
+    wellPlateData.updateSamples();
+    return {
+      plate: wellPlateData,
+      dimensions,
+    };
   }
 }
 
