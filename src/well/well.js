@@ -14,6 +14,7 @@ export class Well {
    * @param {Array} [data.spectrum.y=[]]
    * @param {Object} [options={}]
    * @param {Object} [options.metadata={}] - Metadata relate to the well
+   * @param {Object} [options.results={}] - Metadata relate to the well
    * @param {Array} [options.reagents=[]] - Rctants used in the well
    */
   constructor(options = {}) {
@@ -23,7 +24,7 @@ export class Well {
       plate,
       metadata = {},
       reagents = [],
-      results = [],
+      results = {},
       _highlight = getRandomId()
     } = options;
     this.id = id;
@@ -161,9 +162,7 @@ export class Well {
     if (Array.isArray(result) || typeof result !== 'object') {
       throw new Error(`Result must be a object`);
     }
-    if (!result.name || !result.value) {
-      throw new Error('The name or the value of the result is not defined');
-    }
-    this.results.push(result);
+    let { name, value } = result;
+    this.results[name] = value;
   }
 }
