@@ -1,10 +1,11 @@
-import { PlateSample } from './plateSample'
-import { addChartStyle } from './utilities/addChartStyle'
+import { PlateSample } from './plateSample';
+import { addChartStyle } from './utilities/addChartStyle';
 import { averageArrays } from './utilities/averageArrays';
 import { checkReagents } from './utilities/checkReagents';
 import { generatePlateLabels } from './utilities/generatePlateLabels';
 import { getRandomId } from './utilities/getRandomId';
 import { getSamplesIDs } from './utilities/getSamplesIDs';
+import { setTypeOfPlate } from './utilities/setTypeOfPlate';
 import { sortWells } from './utilities/sortWells';
 import { Well } from './well/well';
 
@@ -22,6 +23,7 @@ export class WellPlateData {
   constructor(options = {}) {
     this.wells = [];
     this.samples = [];
+    this.typeOfPlate = setTypeOfPlate(options);
     let plateLabels = generatePlateLabels(options);
     const labelsList = plateLabels.labelsList;
     for (let i = 0; i < labelsList.length; i++) {
@@ -35,20 +37,6 @@ export class WellPlateData {
         }),
       );
     }
-  }
-
-  /**
-   * Fills the plate with information coming from external array.
-   * @param {Array} plate - Array containing well data as objects.
-   */
-  fillPlateFromArray(plate) {
-    sortWells(plate);
-    let wells = [];
-    for (let well of plate) {
-      wells.push(new Well(well));
-    }
-    this.wells = wells;
-    this.updateSamples();
   }
 
   /**
@@ -83,13 +71,11 @@ export class WellPlateData {
       !Array.isArray(spectra[0].array.y) ||
       spectra[0].array.y.length !== spectra[0].array.x.length
     ) {
-      throw new Error(
-        `The input array must be an array`,
-      );
+      throw new Error(`The input array must be an array`);
     }
     for (let well of this.wells) {
       const spectrum = spectra.filter((item) => item.label === well.label)[0];
-      if (spectrum !== undefined ) {
+      if (spectrum !== undefined) {
         well.metadata.display = false;
         well.metadata.color = 'black';
         well.addSpectrum(spectrum.array);
@@ -106,12 +92,8 @@ export class WellPlateData {
    * @param {Array} growthCurves - Array of objects containing the x and y components of the growth curve
    */
   addGrowthCurvesFromArray(growthCurves) {
-    if (
-      !Array.isArray(growthCurves)
-    ) {
-      throw new Error(
-        `The input array must be an array`,
-      );
+    if (!Array.isArray(growthCurves)) {
+      throw new Error(`The input array must be an array`);
     }
 
     if (
@@ -125,8 +107,10 @@ export class WellPlateData {
       );
     }
     for (let well of this.wells) {
-      const growthCurve = growthCurves.filter((item) => item.label === well.label)[0];
-      if (growthCurve !== undefined ) {
+      const growthCurve = growthCurves.filter(
+        (item) => item.label === well.label,
+      )[0];
+      if (growthCurve !== undefined) {
         well.metadata.display = false;
         well.metadata.color = 'black';
         well.addGrowthCurve(growthCurve.array);
@@ -241,7 +225,7 @@ export class WellPlateData {
     return chart;
   }
 
-    /**
+  /**
    * Checks out if the reagents contain the needed information
    * @param {Object} [options={}]
    * @param {Boolean} [options.checkKeys] - Parameter that allows to check the keys of the reagents object
@@ -270,28 +254,28 @@ export class WellPlateData {
 
   getChartOfSpectraSamples(options) {
     let chart = {
-      data: []
+      data: [],
     };
 
     let samples = this.getSamples(options);
     for (let sample of samples) {
       const data = sample.averagedSpectra;
       addChartStyle(data, sample);
-      chart.data.push(data)
+      chart.data.push(data);
     }
     return chart;
   }
 
   getChartOfGrowthCurvesSamples(options) {
     let chart = {
-      data: []
+      data: [],
     };
 
     let samples = this.getSamples(options);
     for (let sample of samples) {
       const data = sample.averagedGrowthCurves;
       addChartStyle(data, sample);
-      chart.data.push(data)
+      chart.data.push(data);
     }
     return chart;
   }
@@ -300,12 +284,8 @@ export class WellPlateData {
    * Returns an array of objects with the corresponding labels to each well
    * @returns {Array}
    */
-
-
   getSamples(options = {}) {
-    const {
-      ids
-    } = options;
+    const { ids } = options;
     let samples = [];
 
     for (let sample of this.samples) {
@@ -317,16 +297,32 @@ export class WellPlateData {
    * Returns an array of objects with the corresponding labels to each well
    * @returns {Array}
    */
-
-
   getSample(options = {}) {
-    const {
-      id
-    } = options;
+    const { id } = options;
 
     for (let sample of this.samples) {
       if (id === sample.id) return sample;
     }
+  }
+
+  /**
+   * Fills the plate with information coming from external array.
+   * @param {Array} plate - Array containing well data as objects.
+   */
+  static fillPlateFromArray(wells) {
+    wells = sortWells(wells);
+    const lastLabel = sortWells(wells, { path: 'label' })[wells.length - 1].label;
+    let [nbRows, nbColumns] = Number.isNaN(parseInt(lastLabel, 10)) ?
+      lastLabel.match(/[^\d]+|\d+/g): [10, 10];
+    const nbPlates = parseInt(wells[wells.length - 1].id.split('-')[0], 10);
+    const wellPlateData = new WellPlateData({ nbRows, nbColumns, nbPlates });
+    for (let well of wells) {
+      const wellIndex = wellPlateData.wells.findIndex((item) => item.id === well.id);
+      wellPlateData.wells[wellIndex] = new Well(well);
+    }
+    wellPlateData.typeOfPlate = `${nbRows}x${nbColumns}`;
+    wellPlateData.updateSamples();
+    return wellPlateData;
   }
 
   /**
@@ -341,10 +337,8 @@ export class WellPlateData {
     const type = list[0][0] === 'row' ? true : false;
     let wells = [];
     let wellPlateData;
-    let dimensions;
     if (type) {
-      dimensions = { nbRows: 'h', nbColumns: 12 };
-      wellPlateData = new WellPlateData(dimensions)
+      wellPlateData = new WellPlateData({ nbRows: 'H', nbColumns: 12 });
       for (let i = 1; i < list.length; i++) {
         let well = {
           id: `1-${list[i][0].concat(list[i][1])}`,
@@ -353,14 +347,13 @@ export class WellPlateData {
         for (let j = 2; j < list[0].length; j++) {
           well.reagents.push({
             label: list[0][j],
-            concentration: parseFloat(list[i][j])
+            concentration: parseFloat(list[i][j]),
           });
         }
         wells.push(well);
       }
     } else {
-      dimensions = { nbRows: 10, nbColumns: 10 };
-      wellPlateData = new WellPlateData(dimensions)
+      wellPlateData = new WellPlateData({ nbRows: 10, nbColumns: 10 });
       for (let i = 1; i < list.length; i++) {
         let well = {
           id: `1-${list[i][0]}`,
@@ -369,7 +362,7 @@ export class WellPlateData {
         for (let j = 1; j < list[0].length; j++) {
           well.reagents.push({
             label: list[0][j],
-            concentration: parseFloat(list[i][j])
+            concentration: parseFloat(list[i][j]),
           });
         }
         wells.push(well);
@@ -381,20 +374,17 @@ export class WellPlateData {
       selectedWell.updateReagents(wells[i].reagents);
     }
     wellPlateData.updateSamples();
-    return {
-      plate: wellPlateData,
-      dimensions,
-    };
+    return wellPlateData;
   }
 }
 
-WellPlateData.prototype.updateSamples = function() {
+WellPlateData.prototype.updateSamples = function () {
   if (!this.samples.length) {
     const samplesIDs = getSamplesIDs(this.wells);
     let samples = [];
     for (let sampleIDs of samplesIDs) {
-      const label = sampleIDs.map(item => item.split('-')[1]).join('-');
-      const wells = sampleIDs.map(item => ({ id: item, inAverage: true }));
+      const label = sampleIDs.map((item) => item.split('-')[1]).join('-');
+      const wells = sampleIDs.map((item) => ({ id: item, inAverage: true }));
       samples.push(
         new PlateSample({
           id: getRandomId(),
@@ -402,21 +392,21 @@ WellPlateData.prototype.updateSamples = function() {
           wells: wells,
           metadata: {
             color: 'blue',
-            display: true
+            display: true,
           },
-        })
+        }),
       );
     }
     this.samples = samples;
   } else {
     const samples = this.samples;
     for (let sample of samples) {
-      const ids = sample.wells.map((item) => (item.id));
+      const ids = sample.wells.map((item) => item.id);
       const wells = this.getWells({ ids });
-      const spectra = wells.map((item) => (item.spectrum));
-      const growthCurves = wells.map((item) => (item.growthCurve));
+      const spectra = wells.map((item) => item.spectrum);
+      const growthCurves = wells.map((item) => item.growthCurve);
       sample.averagedSpectra = averageArrays(spectra);
       sample.averagedGrowthCurves = averageArrays(growthCurves);
     }
   }
-}
+};
