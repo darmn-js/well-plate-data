@@ -5,6 +5,7 @@ import { checkReagents } from './utilities/checkReagents';
 import { generatePlateLabels } from './utilities/generatePlateLabels';
 import { getRandomId } from './utilities/getRandomId';
 import { getSamplesIDs } from './utilities/getSamplesIDs';
+import { sortWells } from './utilities/sortWells';
 import { Well } from './well/well';
 
 export class WellPlateData {
@@ -41,6 +42,7 @@ export class WellPlateData {
    * @param {Array} plate - Array containing well data as objects.
    */
   fillPlateFromArray(plate) {
+    sortWells(plate);
     let wells = [];
     for (let well of plate) {
       wells.push(new Well(well));
