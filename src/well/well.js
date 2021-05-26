@@ -25,8 +25,10 @@ export class Well {
       metadata = {},
       reagents = [],
       results = {},
-      _highlight = getRandomId()
+      growthCurve = {},
+      spectrum = {}
     } = options;
+
     this.id = id;
     this.selected = false;
     this.label = label;
@@ -34,13 +36,20 @@ export class Well {
     this.results = results;
     this.metadata = metadata;
     this.reagents = reagents;
-    this.growthCurve = {};
-    this.spectrum = {};
-    this.growthCurve.x = [];
-    this.growthCurve.y = [];
-    this.spectrum.x = [];
-    this.spectrum.y = [];
-    this._highlight = _highlight;
+    this.growthCurve = growthCurve;
+    this.spectrum = spectrum;
+
+    if (!growthCurve.x && !growthCurve.y) {
+      this.growthCurve.x = [];
+      this.growthCurve.y = [];
+    }
+
+    if (!spectrum.x && !spectrum.y) {
+      this.spectrum.x = [];
+      this.spectrum.y = [];
+    }
+
+    this._highlight = id;
   }
 
   /**
