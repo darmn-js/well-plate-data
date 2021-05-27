@@ -179,10 +179,10 @@ describe('Add growth curves to the plates', () => {
   const plate100Wells = new WellPlateData({ nbRows: 10, nbColumns: 10 });
   plate100Wells.addGrowthCurvesFromArray(curves);
   it('Add growth curves array to 10 x 10 well plate', () => {
-    expect(plate100Wells.wells[0].growthCurve.x).toHaveLength(73);
-    expect(plate100Wells.wells[0].growthCurve.y).toHaveLength(73);
-    expect(plate100Wells.wells[1].growthCurve.x).toHaveLength(73);
-    expect(plate100Wells.wells[1].growthCurve.y).toHaveLength(73);
+    expect(plate100Wells.wells[0].growthCurve.data.x).toHaveLength(73);
+    expect(plate100Wells.wells[0].growthCurve.data.y).toHaveLength(73);
+    expect(plate100Wells.wells[1].growthCurve.data.x).toHaveLength(73);
+    expect(plate100Wells.wells[1].growthCurve.data.y).toHaveLength(73);
   });
 });
 
@@ -219,10 +219,10 @@ describe('Add spectra to the plates', () => {
   plate100Wells.addSpectrumFromArray(spectra);
   plate100Wells.updateSamples();
   it('Add spectra array to 10 x 10 well plate', () => {
-    expect(plate100Wells.wells[0].spectrum.x).toHaveLength(73);
-    expect(plate100Wells.wells[0].spectrum.y).toHaveLength(73);
-    expect(plate100Wells.wells[1].spectrum.x).toHaveLength(73);
-    expect(plate100Wells.wells[1].spectrum.y).toHaveLength(73);
+    expect(plate100Wells.wells[0].spectrum.data.x).toHaveLength(73);
+    expect(plate100Wells.wells[0].spectrum.data.y).toHaveLength(73);
+    expect(plate100Wells.wells[1].spectrum.data.x).toHaveLength(73);
+    expect(plate100Wells.wells[1].spectrum.data.y).toHaveLength(73);
   });
 });
 

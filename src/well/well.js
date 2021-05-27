@@ -25,8 +25,12 @@ export class Well {
       metadata = {},
       reagents = [],
       results = {},
-      growthCurve = {},
-      spectrum = {}
+      growthCurve = {
+        data: { x: [], y: [] }
+      },
+      spectrum = {
+        data: { x: [], y: [] }
+      }
     } = options;
 
     this.id = id;
@@ -39,14 +43,14 @@ export class Well {
     this.growthCurve = growthCurve;
     this.spectrum = spectrum;
 
-    if (!growthCurve.x && !growthCurve.y) {
-      this.growthCurve.x = [];
-      this.growthCurve.y = [];
+    if (!growthCurve.data.x && !growthCurve.data.y) {
+      this.growthCurve.data.x = [];
+      this.growthCurve.data.y = [];
     }
 
-    if (!spectrum.x && !spectrum.y) {
-      this.spectrum.x = [];
-      this.spectrum.y = [];
+    if (!spectrum.data.x && !spectrum.data.y) {
+      this.spectrum.data.x = [];
+      this.spectrum.data.y = [];
     }
 
     this._highlight = id;
@@ -111,7 +115,9 @@ export class Well {
     if (!Array.isArray(growthCurve.x) || !Array.isArray(growthCurve.y)) {
       throw new Error(`X and Y must be arrays`);
     }
-    this.growthCurve = growthCurve;
+    this.growthCurve = {
+      data: growthCurve
+    };
   }
 
   /**
@@ -124,7 +130,9 @@ export class Well {
     if (!Array.isArray(spectrum.x) || !Array.isArray(spectrum.y)) {
       throw new Error(`X and Y must be arrays`);
     }
-    this.spectrum = spectrum;
+    this.spectrum = {
+      data: spectrum
+    };
   }
 
   /**

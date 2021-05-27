@@ -213,8 +213,8 @@ export class WellPlateData {
 
     for (let well of wells) {
       if (!ids || ids.includes(well.id)) {
-        if (well.spectrum.x.length && well.spectrum.y.length) {
-          const data = well.spectrum;
+        if (well.spectrum.data.x.length && well.spectrum.data.y.length) {
+          const data = well.spectrum.data;
           addChartStyle(data, well);
           chart.data.push(data);
         }
@@ -240,8 +240,8 @@ export class WellPlateData {
 
     for (let well of wells) {
       if (!ids || ids.includes(well.id)) {
-        if (well.growthCurve.x.length && well.growthCurve.y.length) {
-          const data = well.growthCurve;
+        if (well.growthCurve.data.x.length && well.growthCurve.data.y.length) {
+          const data = well.growthCurve.data;
           addChartStyle(data, well);
           chart.data.push(data);
         }
@@ -405,8 +405,8 @@ WellPlateData.prototype.updateSamples = function () {
     for (let sample of samples) {
       const ids = sample.wells.map((item) => item.id);
       const wells = this.getWells({ ids });
-      const spectra = wells.map((item) => item.spectrum);
-      const growthCurves = wells.map((item) => item.growthCurve);
+      const spectra = wells.map((item) => item.spectrum.data);
+      const growthCurves = wells.map((item) => item.growthCurve.data);
       sample.averagedSpectra = averageArrays(spectra);
       sample.averagedGrowthCurves = averageArrays(growthCurves);
     }

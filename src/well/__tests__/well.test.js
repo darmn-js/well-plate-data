@@ -7,26 +7,26 @@ describe('Spectrum', () => {
 
   it('add growth curve to the well', () => {
     testWell.addGrowthCurve({ x, y });
-    expect(testWell.growthCurve.x).toHaveLength(11);
-    expect(testWell.growthCurve.y).toHaveLength(11);
+    expect(testWell.growthCurve.data.x).toHaveLength(11);
+    expect(testWell.growthCurve.data.y).toHaveLength(11);
   });
 
   it('get growth curve to the well', () => {
     const curve = testWell.getGrowthCurve();
-    expect(curve.x).toStrictEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-    expect(curve.y).toStrictEqual([0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100]);
+    expect(curve.data.x).toStrictEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    expect(curve.data.y).toStrictEqual([0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100]);
   });
 
   it('add spectrum to the well', () => {
     testWell.addSpectrum({ x, y });
-    expect(testWell.spectrum.x).toHaveLength(11);
-    expect(testWell.spectrum.y).toHaveLength(11);
+    expect(testWell.spectrum.data.x).toHaveLength(11);
+    expect(testWell.spectrum.data.y).toHaveLength(11);
   });
 
   it('get spectrum to the well', () => {
     const spectrum = testWell.getSpectrum();
-    expect(spectrum.x).toStrictEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-    expect(spectrum.y).toStrictEqual([0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100]);
+    expect(spectrum.data.x).toStrictEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    expect(spectrum.data.y).toStrictEqual([0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100]);
   });
 
   it('get metadata related to the well', () => {
