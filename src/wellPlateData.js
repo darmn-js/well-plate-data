@@ -169,14 +169,12 @@ export class WellPlateData {
     const { separator = ',' } = options;
     const plate = this.wells;
     const regex = /(?:[0-9]+)|(?:[a-zA-Z]+)/g;
-    let label = plate[0].label;
     let reagents = plate[0].reagents.map((item) => item.label);
-    let splittedLabel = label.match(regex);
-    let header = splittedLabel.length === 2 ? ['row', 'column'] : ['well'];
-    header = header.concat(reagents);
+    const header = ['row', 'column'].concat(reagents);
     const list = [header];
     for (let well of plate) {
-      splittedLabel = well.label.match(regex);
+        const splittedLabel = Number.isNaN(parseInt(well.label, 10)) ?
+            well.label.match(regex): getWellsPositions(well.label);
       reagents = well.reagents.map((item) => item.concentration);
       list.push(splittedLabel.concat(reagents));
     }
@@ -333,11 +331,31 @@ export class WellPlateData {
    */
   static readTemplate(string, options = {}) {
     const { separator = ',' } = options;
-    const list = string.split('\n').map((row) => row.split(separator));
-    const type = list[0][0] === 'row' ? true : false;
+    const list = string.split('\n')
+      .map((row) => row.split(separator))
+      // eslint-disable-next-line eqeqeq
+      .filter((item) => item != '');
     let wells = [];
     let wellPlateData;
-    if (type) {
+    if (
+        Number.isInteger(parseInt(list[1][0], 10)) &&
+        Number.isInteger(parseInt(list[1][1], 10))
+    ) {
+      wellPlateData = new WellPlateData({ nbRows: 10, nbColumns: 10 });
+      for (let i = 1; i < list.length; i++) {
+        let well = {
+          id: `1-${((parseInt(list[i][0], 10) - 1) * 10) + parseInt(list[i][1], 10)}`,
+          reagents: [],
+        };
+        for (let j = 2; j < list[0].length; j++) {
+          well.reagents.push({
+            label: list[0][j],
+            concentration: parseFloat(list[i][j]),
+          });
+        }
+        wells.push(well);
+      }
+    } else {
       wellPlateData = new WellPlateData({ nbRows: 'H', nbColumns: 12 });
       for (let i = 1; i < list.length; i++) {
         let well = {
@@ -352,23 +370,7 @@ export class WellPlateData {
         }
         wells.push(well);
       }
-    } else {
-      wellPlateData = new WellPlateData({ nbRows: 10, nbColumns: 10 });
-      for (let i = 1; i < list.length; i++) {
-        let well = {
-          id: `1-${list[i][0]}`,
-          reagents: [],
-        };
-        for (let j = 1; j < list[0].length; j++) {
-          well.reagents.push({
-            label: list[0][j],
-            concentration: parseFloat(list[i][j]),
-          });
-        }
-        wells.push(well);
-      }
     }
-
     for (let i = 0; i < wells.length; i++) {
       const selectedWell = wellPlateData.getWell({ id: wells[i].id });
       selectedWell.updateReagents(wells[i].reagents);
@@ -410,3 +412,10 @@ WellPlateData.prototype.updateSamples = function () {
     }
   }
 };
+
+function getWellsPositions(label, options={}) {
+  const { columns = 10 } = options;
+  const nbRow = Math.floor((label - 1) / columns);
+  const nbColumn = label - (columns * nbRow);
+  return [nbRow + 1, nbColumn]
+}
