@@ -5,7 +5,6 @@ import { parse } from 'papaparse';
 
 import { WellPlateData } from '../../wellPlateData';
 import { getSamplesIDs } from '../getSamplesIDs';
-// import {} from ''
 
 describe('Get well samples', () => {
     let file = readFileSync(

@@ -380,6 +380,19 @@ export class WellPlateData {
   }
 }
 
+WellPlateData.prototype.resurrect = function () {
+  // eslint-disable-next-line import/no-unresolved
+  const Datas = require('src/main/datas')
+  const DataObject = Datas.DataObject;
+  let keys = Object.keys(this.wells[0]);
+  for (let well of this.wells) {
+    for (let key of keys) {
+      well[key] = DataObject.resurrect(well[key]);
+    }
+  }
+  this.updateSamples();
+};
+
 WellPlateData.prototype.updateSamples = function () {
   if (!this.samples.length) {
     const samplesIDs = getSamplesIDs(this.wells);
