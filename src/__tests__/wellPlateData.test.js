@@ -226,9 +226,9 @@ describe('Add spectra to the plates', () => {
   });
 });
 
-describe('Add results to the plates', () => {
+describe('Add analysis to the plates', () => {
   let file = readFileSync(
-    join(__dirname, '../testFiles/results_example.csv'),
+    join(__dirname, '../testFiles/analysis_example.csv'),
     'utf8',
   );
 
@@ -252,20 +252,20 @@ describe('Add results to the plates', () => {
     parsed.push(...row);
   }
 
-  let plateResults = [];
+  let plateAnalysis = [];
   for (let i = 0; i < parsed.length; i++) {
-    plateResults.push({
+    plateAnalysis.push({
       name: 'IC50',
       value: parsed[i],
     });
   }
 
   const plate96Wells = new WellPlateData();
-  plate96Wells.addResultsFromArray(plateResults);
+  plate96Wells.addAnalysisFromArray(plateAnalysis);
   it('Add spectra array to 10 x 10 well plate', () => {
-    expect(plate96Wells.wells[0].results).toStrictEqual({ IC50: 541 });
-    expect(plate96Wells.wells[24].results).toStrictEqual({ IC50: 43 });
-    expect(plate96Wells.wells[72].results).toStrictEqual({ IC50: 353 });
-    expect(plate96Wells.wells[95].results).toStrictEqual({ IC50: 55 });
+    expect(plate96Wells.wells[0].analysis).toStrictEqual({ IC50: 541 });
+    expect(plate96Wells.wells[24].analysis).toStrictEqual({ IC50: 43 });
+    expect(plate96Wells.wells[72].analysis).toStrictEqual({ IC50: 353 });
+    expect(plate96Wells.wells[95].analysis).toStrictEqual({ IC50: 55 });
   });
 });

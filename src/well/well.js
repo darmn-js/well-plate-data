@@ -14,7 +14,7 @@ export class Well {
    * @param {Array} [data.spectrum.y=[]]
    * @param {Object} [options={}]
    * @param {Object} [options.metadata={}] - Metadata relate to the well
-   * @param {Object} [options.results={}] - Metadata relate to the well
+   * @param {Object} [options.analysis={}] - Metadata relate to the well
    * @param {Array} [options.reagents=[]] - Rctants used in the well
    */
   constructor(options = {}) {
@@ -24,7 +24,7 @@ export class Well {
       plate,
       metadata = {},
       reagents = [],
-      results = {},
+      analysis = {},
       growthCurve = {
         data: { x: [], y: [] }
       },
@@ -37,7 +37,7 @@ export class Well {
     this.selected = false;
     this.label = label;
     this.plate = plate;
-    this.results = results;
+    this.analysis = analysis;
     this.metadata = metadata;
     this.reagents = reagents;
     this.growthCurve = growthCurve;
@@ -172,14 +172,14 @@ export class Well {
   }
 
   /**
-   * Adds results to the well
-   * @param {Array} result - Object containing the results
+   * Adds analysis to the well
+   * @param {Array} analysis - Object containing the analysis
    */
-  addResults(result) {
-    if (Array.isArray(result) || typeof result !== 'object') {
+  addAnalysis(analysis) {
+    if (Array.isArray(analysis) || typeof analysis !== 'object') {
       throw new Error(`Result must be a object`);
     }
-    let { name, value } = result;
-    this.results[name] = value;
+    let { name, value } = analysis;
+    this.analysis[name] = value;
   }
 }

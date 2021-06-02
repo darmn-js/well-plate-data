@@ -124,14 +124,14 @@ export class WellPlateData {
 
   /**
    * Sets the corresponding result to each well
-   * @param {Array} results - Array of objects containing the results added
+   * @param {Array} analysis - Array of objects containing the analysis added
    */
-  addResultsFromArray(results) {
-    if (!Array.isArray(results)) {
-      throw new Error('The results input is not an array');
+  addAnalysisFromArray(analysis) {
+    if (!Array.isArray(analysis)) {
+      throw new Error('The analysis input is not an array');
     }
     for (let i = 0; i < this.wells.length; i++) {
-      this.wells[i].addResults(results[i]);
+      this.wells[i].addAnalysis(analysis[i]);
     }
   }
 
