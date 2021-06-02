@@ -410,6 +410,7 @@ WellPlateData.prototype.updateSamples = function () {
             color: 'blue',
             display: true,
           },
+          _highlight: sampleIDs,
         }),
       );
     }
