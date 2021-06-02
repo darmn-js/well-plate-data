@@ -1,5 +1,6 @@
 import { PlateSample } from './plateSample';
 import { addChartStyle } from './utilities/addChartStyle';
+import { averageAnalysis} from './utilities/averageAnalysis';
 import { averageArrays } from './utilities/averageArrays';
 import { checkReagents } from './utilities/checkReagents';
 import { generatePlateLabels } from './utilities/generatePlateLabels';
@@ -420,6 +421,7 @@ WellPlateData.prototype.updateSamples = function () {
       const wells = this.getWells({ ids });
       const spectra = wells.map((item) => item.spectrum.data);
       const growthCurves = wells.map((item) => item.growthCurve.data);
+      sample.averagedAnalysis = averageAnalysis(wells);
       sample.averagedSpectra = averageArrays(spectra);
       sample.averagedGrowthCurves = averageArrays(growthCurves);
     }
