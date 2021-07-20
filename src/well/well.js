@@ -22,9 +22,17 @@ export class Well {
       id = getRandomId(),
       label = undefined,
       plate,
-      metadata = {},
+      metadata = {
+        color: 'black',
+        display: true,
+        category: null,
+        group: null,
+      },
       reagents = [],
-      analysis = {},
+      analysis = {
+        raw: {},
+        processed: {}
+      },
       growthCurve = {
         data: { x: [], y: [] }
       },
@@ -180,6 +188,7 @@ export class Well {
       throw new Error(`Result must be a object`);
     }
     let { name, value } = analysis;
-    this.analysis[name] = value;
+    this.analysis.raw[name] = value;
+    this.analysis.processed[name] = value;
   }
 }

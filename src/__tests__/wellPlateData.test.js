@@ -263,9 +263,9 @@ describe('Add analysis to the plates', () => {
   const plate96Wells = new WellPlateData();
   plate96Wells.addAnalysisFromArray(plateAnalysis);
   it('Add spectra array to 10 x 10 well plate', () => {
-    expect(plate96Wells.wells[0].analysis).toStrictEqual({ IC50: 541 });
-    expect(plate96Wells.wells[24].analysis).toStrictEqual({ IC50: 43 });
-    expect(plate96Wells.wells[72].analysis).toStrictEqual({ IC50: 353 });
-    expect(plate96Wells.wells[95].analysis).toStrictEqual({ IC50: 55 });
+    expect(plate96Wells.wells[0].analysis.raw).toStrictEqual({ IC50: 541 });
+    expect(plate96Wells.wells[24].analysis.raw).toStrictEqual({ IC50: 43 });
+    expect(plate96Wells.wells[72].analysis.raw).toStrictEqual({ IC50: 353 });
+    expect(plate96Wells.wells[95].analysis.raw).toStrictEqual({ IC50: 55 });
   });
 });

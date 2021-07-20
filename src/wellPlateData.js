@@ -1,3 +1,6 @@
+import mean from 'ml-array-mean';
+import standardDeviation from 'ml-array-standard-deviation';
+
 import { PlateSample } from './plateSample';
 import { addChartStyle } from './utilities/addChartStyle';
 import { averageAnalysis} from './utilities/averageAnalysis';
@@ -6,6 +9,7 @@ import { checkReagents } from './utilities/checkReagents';
 import { generatePlateLabels } from './utilities/generatePlateLabels';
 import { getRandomId } from './utilities/getRandomId';
 import { getSamplesIDs } from './utilities/getSamplesIDs';
+import { rawAnalysis } from './utilities/rawAnalysis';
 import { setTypeOfPlate } from './utilities/setTypeOfPlate';
 import { sortWells } from './utilities/sortWells';
 import { Well } from './well/well';
@@ -392,6 +396,12 @@ WellPlateData.prototype.resurrect = function () {
     }
   }
   this.updateSamples();
+  keys = Object.keys(this.samples[0]);
+  for (let sample of this.samples){
+    for (let key of keys){
+      sample[key] = DataObject.resurrect(sample[key])
+    }
+  }
 };
 
 WellPlateData.prototype.updateSamples = function () {
@@ -409,7 +419,10 @@ WellPlateData.prototype.updateSamples = function () {
           metadata: {
             color: 'blue',
             display: true,
+            category: null,
+            group: null,
           },
+          results: {},
           _highlight: sampleIDs,
         }),
       );
@@ -418,16 +431,69 @@ WellPlateData.prototype.updateSamples = function () {
   } else {
     const samples = this.samples;
     for (let sample of samples) {
-      const ids = sample.wells.map((item) => item.id);
+      const ids = sample.wells.filter((item) => (item.inAverage)).map((item) => (item.id));
       const wells = this.getWells({ ids });
       const spectra = wells.map((item) => item.spectrum.data);
       const growthCurves = wells.map((item) => item.growthCurve.data);
-      sample.averagedAnalysis = averageAnalysis(wells);
+      sample.analysis = {
+        raw: rawAnalysis(wells),
+        averaged: averageAnalysis(wells),
+        wells: wells.map((well) => ({ id: well.id, analysis: well.analysis }))
+      }
       sample.averagedSpectra = averageArrays(spectra);
       sample.averagedGrowthCurves = averageArrays(growthCurves);
+      this.grubbs(sample);
     }
   }
 };
+
+WellPlateData.prototype.grubbs = function(sample){
+  const ids = sample.wells
+      .filter((item) => item.inAverage)
+      .map((item) => item.id);
+  const wells = this.getWells({ ids });
+  const keys = Object.keys(wells[0].analysis);
+  if (!wells.length || !keys.length) return;
+  sample.wells.map((item) => (item.univariate = { grubbs: { criticalValue: getCriticalValue(wells.length), values: []} }))
+  for (let key of keys) {
+      const values = wells.map((item) => item.analysis[key]);
+      const meanValue = mean(values);
+      const std = standardDeviation(values);
+      for (let well of sample.wells) {
+          const analysisResult = this.getWell({ id: well.id }).analysis[key];
+          const value = Math.abs(analysisResult - meanValue) / std;
+          well.univariate.grubbs.values.push({
+              label: key,
+              value: value,
+              analysisValue: analysisResult,
+              color: value > well.univariate.grubbs.criticalValue ? "#FA5D3E": "#3EFA44",
+          })
+      }
+  }
+}
+
+
+function getCriticalValue(gValue) {
+  const gValues95 = {
+    "3": 1.15,
+    "4": 1.463,
+    "5": 1.672,
+    "6": 1.822,
+    "7": 1.938,
+    "8": 2.032,
+    "9": 2.110,
+    "10": 2.176,
+    "11": 2.234,
+    "12": 2.285,
+    "13": 2.33,
+    "14": 2.37,
+    "15": 2.409,
+    "16": 2.44,
+    "17": 2.47,
+    "20": 2.557,
+  };
+  return gValues95[gValue];
+}
 
 function getWellsPositions(label, options={}) {
   const { columns = 10 } = options;

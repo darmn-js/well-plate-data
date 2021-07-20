@@ -15,15 +15,27 @@ export class PlateSample {
       metadata = {
         color: 'blue',
         display: true,
+        category: null,
+        group: null,
       },
       averagedSpectra = { x: [], y: [] },
       averagedGrowthCurves = { x: [], y: [] },
-      _highlight = getRandomId()
+      _highlight = getRandomId(),
+      analysis = {
+        raw: {},
+        averaged: [],
+        wells: [],
+      },
+      results = {},
+      reagents = [],
     } = options;
     this.id = id;
     this.label = label;
     this.wells = wells;
     this.metadata = metadata;
+    this.results = results;
+    this.analysis = analysis;
+    this.reagents = reagents;
     this.averagedSpectra = averagedSpectra;
     this.averagedGrowthCurves = averagedGrowthCurves;
     this._highlight = _highlight;

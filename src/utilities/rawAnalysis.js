@@ -1,15 +1,12 @@
-export function averageAnalysis(wells){
+export function rawAnalysis(wells){
     const keys = Object.keys(wells[0].analysis)
-    let result = [];
+    let result = {};
     for (let key of keys) {
         let average = 0;
         for (let well of wells) {
             average += well.analysis[key];
         }
-        result.push({
-            label: key,
-            value: average / wells.length,
-        })
+        result[key] = average / wells.length
     }
     return result;
 }
