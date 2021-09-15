@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 import mean from 'ml-array-mean';
 import standardDeviation from 'ml-array-standard-deviation';
 
