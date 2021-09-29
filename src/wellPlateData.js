@@ -1,6 +1,6 @@
+/* eslint-disable prefer-named-capture-group */
 /* eslint-disable func-names */
-import mean from 'ml-array-mean';
-import standardDeviation from 'ml-array-standard-deviation';
+import * as tests from 'univariate-tests';
 
 import { PlateSample } from './plateSample';
 import { addChartStyle } from './utilities/addChartStyle';
@@ -175,14 +175,20 @@ export class WellPlateData {
     const { separator = ',' } = options;
     const plate = this.wells;
     const regex = /(?:[0-9]+)|(?:[a-zA-Z]+)/g;
-    let reagents = plate[0].reagents.map((item) => item.label);
+    const reagentsLabels = plate[0].reagents.map((item) => (item.label));
+    const reagentsUnits = plate[0].reagents.map((item) => (item.unit));
+    const reagents = [];
+    for (let i = 0; i < reagentsLabels.length; i++) {
+      reagents.push(`${reagentsLabels[i]}(${reagentsUnits[i]})`)
+    }
+
     const header = ['row', 'column'].concat(reagents);
     const list = [header];
     for (let well of plate) {
-        const splittedLabel = Number.isNaN(parseInt(well.label, 10)) ?
-            well.label.match(regex): getWellsPositions(well.label);
-      reagents = well.reagents.map((item) => item.concentration);
-      list.push(splittedLabel.concat(reagents));
+      const splittedLabel = Number.isNaN(parseInt(well.label, 10)) ?
+        well.label.match(regex): getWellsPositions(well.label);
+      const concentrations = well.reagents.map((item) => item.concentration);
+      list.push(splittedLabel.concat(concentrations));
     }
     return list.map((well) => well.join(separator)).join('\n');
   }
@@ -339,8 +345,7 @@ export class WellPlateData {
     const { separator = ',' } = options;
     const list = string.split('\n')
       .map((row) => row.split(separator))
-      // eslint-disable-next-line eqeqeq
-      .filter((item) => item != '');
+      .filter((item) => item !== '');
     let wells = [];
     let wellPlateData;
     if (
@@ -355,7 +360,8 @@ export class WellPlateData {
         };
         for (let j = 2; j < list[0].length; j++) {
           well.reagents.push({
-            label: list[0][j],
+            label: list[0][j].split('(')[0],
+            unit: /\(([^)]+)\)/.exec(list[0][j])[1],
             concentration: parseFloat(list[i][j]),
           });
         }
@@ -370,7 +376,8 @@ export class WellPlateData {
         };
         for (let j = 2; j < list[0].length; j++) {
           well.reagents.push({
-            label: list[0][j],
+            label: list[0][j].split('(')[0],
+            unit: /\(([^)]+)\)/.exec(list[0][j])[1],
             concentration: parseFloat(list[i][j]),
           });
         }
@@ -382,7 +389,7 @@ export class WellPlateData {
       selectedWell.updateReagents(wells[i].reagents);
     }
     wellPlateData.updateSamples();
-    return wellPlateData;
+    return wells;
   }
 }
 
@@ -443,57 +450,44 @@ WellPlateData.prototype.updateSamples = function () {
       }
       sample.averagedSpectra = averageArrays(spectra);
       sample.averagedGrowthCurves = averageArrays(growthCurves);
-      this.grubbs(sample);
+      this.test(sample);
     }
   }
 };
 
-WellPlateData.prototype.grubbs = function(sample){
-  const ids = sample.wells
+WellPlateData.prototype.test = function(sample){
+  const sampleWells = sample.wells;
+  const ids = sampleWells
       .filter((item) => item.inAverage)
       .map((item) => item.id);
   const wells = this.getWells({ ids });
-  const keys = Object.keys(wells[0].analysis);
+  const keys = Object.keys(wells[0].analysis.processed);
   if (!wells.length || !keys.length) return;
-  sample.wells.map((item) => (item.univariate = { grubbs: { criticalValue: getCriticalValue(wells.length), values: []} }))
-  for (let key of keys) {
-      const values = wells.map((item) => item.analysis[key]);
-      const meanValue = mean(values);
-      const std = standardDeviation(values);
-      for (let well of sample.wells) {
-          const analysisResult = this.getWell({ id: well.id }).analysis[key];
-          const value = Math.abs(analysisResult - meanValue) / std;
-          well.univariate.grubbs.values.push({
-              label: key,
-              value: value,
-              analysisValue: analysisResult,
-              color: value > well.univariate.grubbs.criticalValue ? "#FA5D3E": "#3EFA44",
-          })
+  sampleWells.map((item) => (item.test = []))
+  for (const key of keys) {
+    const values = wells.map((item) => item.analysis.processed[key]);
+    const { test, criticalValue } = tests.grubbs(values);
+    sample.grubbsCriticalValue = criticalValue;
+    for (let i = 0; i < sampleWells.length; i++) {
+      if (ids.includes(sampleWells[i].id)) {
+        const index = ids.indexOf(sampleWells[i].id)
+        sampleWells[i].test.push({
+          label: key,
+          color: test[index].pass? '#46FF8F': '#FF4649',
+          ...test[index]
+        });
+      } else {
+        const well = this.getWell({ id: sampleWells[i].id })
+        sampleWells[i].test.push({
+          label: key,
+          color: '#EAEAEA',
+          value: well.analysis.processed[key],
+          score: 0,
+          pass: undefined
+        });
       }
+    }
   }
-}
-
-
-function getCriticalValue(gValue) {
-  const gValues95 = {
-    "3": 1.15,
-    "4": 1.463,
-    "5": 1.672,
-    "6": 1.822,
-    "7": 1.938,
-    "8": 2.032,
-    "9": 2.110,
-    "10": 2.176,
-    "11": 2.234,
-    "12": 2.285,
-    "13": 2.33,
-    "14": 2.37,
-    "15": 2.409,
-    "16": 2.44,
-    "17": 2.47,
-    "20": 2.557,
-  };
-  return gValues95[gValue];
 }
 
 function getWellsPositions(label, options={}) {
