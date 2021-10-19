@@ -1,5 +1,6 @@
 /* eslint-disable prefer-named-capture-group */
 /* eslint-disable func-names */
+/* eslint-disable import/no-unresolved */
 import * as tests from 'univariate-tests';
 
 import { PlateSample } from './plateSample';
@@ -402,7 +403,7 @@ export class WellPlateData {
 }
 
 WellPlateData.prototype.resurrect = function () {
-  // eslint-disable-next-line import/no-unresolved
+  //eslint-disable-next-line no-undef
   const Datas = require('src/main/datas');
   const DataObject = Datas.DataObject;
   let keys = Object.keys(this.wells[0]);
