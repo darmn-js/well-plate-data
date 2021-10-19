@@ -13,7 +13,12 @@ export function getSamplesIDs(wells) {
     if (feature + 1) continue;
     sampleWells.push(replicated);
     const replicates = wells
-      .filter((item) => JSON.stringify(item.reagents.map((element) => element.concentration)) === replicated)
+      .filter(
+        (item) =>
+          JSON.stringify(
+            item.reagents.map((element) => element.concentration),
+          ) === replicated,
+      )
       .map((item) => item.id);
     sampleIDs.push(replicates);
   }

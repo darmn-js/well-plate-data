@@ -167,13 +167,13 @@ describe('Add growth curves to the plates', () => {
   for (let i = 1; i < file[0].length; i++) {
     let curve = [];
     for (let j = 3; j < file.length - 1; j++) {
-        curve.push(file[j][i])
+      curve.push(file[j][i]);
     }
-    let label = file[2][i]
+    let label = file[2][i];
     curves.push({
-        label: `${label}`,
-        array: { x: xAxis, y: curve}
-    })
+      label: `${label}`,
+      array: { x: xAxis, y: curve },
+    });
   }
 
   const plate100Wells = new WellPlateData({ nbRows: 10, nbColumns: 10 });
@@ -206,13 +206,13 @@ describe('Add spectra to the plates', () => {
   for (let i = 1; i < file[0].length; i++) {
     let spectrum = [];
     for (let j = 3; j < file.length - 1; j++) {
-      spectrum.push(file[j][i])
+      spectrum.push(file[j][i]);
     }
-    let label = file[2][i]
+    let label = file[2][i];
     spectra.push({
-        label: `${label}`,
-        array: { x: xAxis, y: spectrum}
-    })
+      label: `${label}`,
+      array: { x: xAxis, y: spectrum },
+    });
   }
 
   const plate100Wells = new WellPlateData({ nbRows: 10, nbColumns: 10 });

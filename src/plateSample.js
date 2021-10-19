@@ -41,4 +41,3 @@ export class PlateSample {
     this._highlight = _highlight;
   }
 }
-

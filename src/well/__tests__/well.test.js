@@ -14,7 +14,9 @@ describe('Spectrum', () => {
   it('get growth curve to the well', () => {
     const curve = testWell.getGrowthCurve();
     expect(curve.data.x).toStrictEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-    expect(curve.data.y).toStrictEqual([0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100]);
+    expect(curve.data.y).toStrictEqual([
+      0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100,
+    ]);
   });
 
   it('add spectrum to the well', () => {
@@ -26,7 +28,9 @@ describe('Spectrum', () => {
   it('get spectrum to the well', () => {
     const spectrum = testWell.getSpectrum();
     expect(spectrum.data.x).toStrictEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-    expect(spectrum.data.y).toStrictEqual([0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100]);
+    expect(spectrum.data.y).toStrictEqual([
+      0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100,
+    ]);
   });
 
   it('get metadata related to the well', () => {
@@ -41,6 +45,6 @@ describe('Spectrum', () => {
 
   it('get label of the well', () => {
     const label = testWell.getLabel();
-    expect(label).toStrictEqual('A1');
+    expect(label).toBe('A1');
   });
 });

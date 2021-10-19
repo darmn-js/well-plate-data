@@ -1,15 +1,13 @@
-/* eslint-disable jest/no-try-expect */
 import { Well } from '../../well/well';
 import { checkReagents } from '../checkReagents';
 
 describe('test get random id function', () => {
-
   const well = new Well({
     id: '1-A1',
     plate: '1',
     label: 'A1',
     _highlight: 0,
-  })
+  });
 
   it('References missing in the reagent object', () => {
     const reagent = [

@@ -1,11 +1,13 @@
-export function checkReagents(well, options={}) {
+export function checkReagents(well, options = {}) {
   const {
     checkKeys = true,
     checkValues = true,
-    keys = ['reference', 'batch', 'uuid', 'concentration']
+    keys = ['reference', 'batch', 'uuid', 'concentration'],
   } = options;
   const reagents = well.reagents;
-  if (reagents.length === 0) throw new Error(`The well ${well.id} has no reagents`);
+  if (reagents.length === 0) {
+    throw new Error(`The well ${well.id} has no reagents`);
+  }
   for (let reagent of reagents) {
     const entries = Object.entries(reagent);
     if (checkKeys) {
@@ -14,7 +16,9 @@ export function checkReagents(well, options={}) {
         const boolean = inputKeys.find((item) => item === keys[i]);
         if (!boolean) {
           throw new Error(
-            `Property ${keys[i].toUpperCase()} not defined for ${reagent.label} at ${well.id}`,
+            `Property ${keys[i].toUpperCase()} not defined for ${
+              reagent.label
+            } at ${well.id}`,
           );
         }
       }
@@ -28,7 +32,11 @@ export function checkReagents(well, options={}) {
         );
         if (index !== -1) {
           throw new Error(
-            `Property ${entries[index][0].toUpperCase()} has undefined value for ${reagent.label} at ${well.id}`,
+            `Property ${entries[
+              index
+            ][0].toUpperCase()} has undefined value for ${reagent.label} at ${
+              well.id
+            }`,
           );
         }
       }

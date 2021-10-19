@@ -3,9 +3,9 @@
  * @param {Array} - Array of wells
  * @returns {Array}
  */
-export function sortWells(array, options={}) {
-    const { path = 'id' } = options;
-    return array.sort((a, b) => {
-        return a[path].localeCompare(b[path], 'en', { numeric: true });
-    })
+export function sortWells(array, options = {}) {
+  const { path = 'id' } = options;
+  return array.sort((a, b) => {
+    return a[path].localeCompare(b[path], 'en', { numeric: true });
+  });
 }

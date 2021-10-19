@@ -4,7 +4,7 @@ import * as tests from 'univariate-tests';
 
 import { PlateSample } from './plateSample';
 import { addChartStyle } from './utilities/addChartStyle';
-import { averageAnalysis} from './utilities/averageAnalysis';
+import { averageAnalysis } from './utilities/averageAnalysis';
 import { averageArrays } from './utilities/averageArrays';
 import { checkReagents } from './utilities/checkReagents';
 import { generatePlateLabels } from './utilities/generatePlateLabels';
@@ -175,18 +175,19 @@ export class WellPlateData {
     const { separator = ',' } = options;
     const plate = this.wells;
     const regex = /(?:[0-9]+)|(?:[a-zA-Z]+)/g;
-    const reagentsLabels = plate[0].reagents.map((item) => (item.label));
-    const reagentsUnits = plate[0].reagents.map((item) => (item.unit));
+    const reagentsLabels = plate[0].reagents.map((item) => item.label);
+    const reagentsUnits = plate[0].reagents.map((item) => item.unit);
     const reagents = [];
     for (let i = 0; i < reagentsLabels.length; i++) {
-      reagents.push(`${reagentsLabels[i]}(${reagentsUnits[i]})`)
+      reagents.push(`${reagentsLabels[i]}(${reagentsUnits[i]})`);
     }
 
     const header = ['row', 'column'].concat(reagents);
     const list = [header];
     for (let well of plate) {
-      const splittedLabel = Number.isNaN(parseInt(well.label, 10)) ?
-        well.label.match(regex): getWellsPositions(well.label);
+      const splittedLabel = Number.isNaN(parseInt(well.label, 10))
+        ? well.label.match(regex)
+        : getWellsPositions(well.label);
       const concentrations = well.reagents.map((item) => item.concentration);
       list.push(splittedLabel.concat(concentrations));
     }
@@ -321,13 +322,17 @@ export class WellPlateData {
    */
   static fillPlateFromArray(wells) {
     wells = sortWells(wells);
-    const lastLabel = sortWells(wells, { path: 'label' })[wells.length - 1].label;
-    let [nbRows, nbColumns] = Number.isNaN(parseInt(lastLabel, 10)) ?
-      lastLabel.match(/[^\d]+|\d+/g): [10, 10];
+    const lastLabel = sortWells(wells, { path: 'label' })[wells.length - 1]
+      .label;
+    let [nbRows, nbColumns] = Number.isNaN(parseInt(lastLabel, 10))
+      ? lastLabel.match(/[^\d]+|\d+/g)
+      : [10, 10];
     const nbPlates = parseInt(wells[wells.length - 1].id.split('-')[0], 10);
     const wellPlateData = new WellPlateData({ nbRows, nbColumns, nbPlates });
     for (let well of wells) {
-      const wellIndex = wellPlateData.wells.findIndex((item) => item.id === well.id);
+      const wellIndex = wellPlateData.wells.findIndex(
+        (item) => item.id === well.id,
+      );
       wellPlateData.wells[wellIndex] = new Well(well);
     }
     wellPlateData.typeOfPlate = `${nbRows}x${nbColumns}`;
@@ -343,19 +348,22 @@ export class WellPlateData {
    */
   static readTemplate(string, options = {}) {
     const { separator = ',' } = options;
-    const list = string.split('\n')
+    const list = string
+      .split('\n')
       .map((row) => row.split(separator))
       .filter((item) => item !== '');
-    let wells = [];
+    const wells = [];
     let wellPlateData;
     if (
-        Number.isInteger(parseInt(list[1][0], 10)) &&
-        Number.isInteger(parseInt(list[1][1], 10))
+      Number.isInteger(parseInt(list[1][0], 10)) &&
+      Number.isInteger(parseInt(list[1][1], 10))
     ) {
       wellPlateData = new WellPlateData({ nbRows: 10, nbColumns: 10 });
       for (let i = 1; i < list.length; i++) {
-        let well = {
-          id: `1-${((parseInt(list[i][0], 10) - 1) * 10) + parseInt(list[i][1], 10)}`,
+        const well = {
+          id: `1-${
+            (parseInt(list[i][0], 10) - 1) * 10 + parseInt(list[i][1], 10)
+          }`,
           reagents: [],
         };
         for (let j = 2; j < list[0].length; j++) {
@@ -370,7 +378,7 @@ export class WellPlateData {
     } else {
       wellPlateData = new WellPlateData({ nbRows: 'H', nbColumns: 12 });
       for (let i = 1; i < list.length; i++) {
-        let well = {
+        const well = {
           id: `1-${list[i][0].concat(list[i][1])}`,
           reagents: [],
         };
@@ -389,13 +397,13 @@ export class WellPlateData {
       selectedWell.updateReagents(wells[i].reagents);
     }
     wellPlateData.updateSamples();
-    return wells;
+    return wellPlateData;
   }
 }
 
 WellPlateData.prototype.resurrect = function () {
   // eslint-disable-next-line import/no-unresolved
-  const Datas = require('src/main/datas')
+  const Datas = require('src/main/datas');
   const DataObject = Datas.DataObject;
   let keys = Object.keys(this.wells[0]);
   for (let well of this.wells) {
@@ -405,9 +413,9 @@ WellPlateData.prototype.resurrect = function () {
   }
   this.updateSamples();
   keys = Object.keys(this.samples[0]);
-  for (let sample of this.samples){
-    for (let key of keys){
-      sample[key] = DataObject.resurrect(sample[key])
+  for (let sample of this.samples) {
+    for (let key of keys) {
+      sample[key] = DataObject.resurrect(sample[key]);
     }
   }
 };
@@ -439,60 +447,63 @@ WellPlateData.prototype.updateSamples = function () {
   } else {
     const samples = this.samples;
     for (let sample of samples) {
-      const ids = sample.wells.filter((item) => (item.inAverage)).map((item) => (item.id));
+      const ids = sample.wells
+        .filter((item) => item.inAverage)
+        .map((item) => item.id);
       const wells = this.getWells({ ids });
       const spectra = wells.map((item) => item.spectrum.data);
       const growthCurves = wells.map((item) => item.growthCurve.data);
       sample.analysis = {
         raw: rawAnalysis(wells),
         averaged: averageAnalysis(wells),
-        wells: wells.map((well) => ({ id: well.id, analysis: well.analysis }))
-      }
+        wells: wells.map((well) => ({ id: well.id, analysis: well.analysis })),
+      };
       sample.averagedSpectra = averageArrays(spectra);
       sample.averagedGrowthCurves = averageArrays(growthCurves);
+      sample.reagents = wells[0].reagents;
       this.test(sample);
     }
   }
 };
 
-WellPlateData.prototype.test = function(sample){
+WellPlateData.prototype.test = function (sample) {
   const sampleWells = sample.wells;
   const ids = sampleWells
-      .filter((item) => item.inAverage)
-      .map((item) => item.id);
+    .filter((item) => item.inAverage)
+    .map((item) => item.id);
   const wells = this.getWells({ ids });
   const keys = Object.keys(wells[0].analysis.processed);
   if (!wells.length || !keys.length) return;
-  sampleWells.map((item) => (item.test = []))
+  sampleWells.map((item) => (item.test = []));
   for (const key of keys) {
     const values = wells.map((item) => item.analysis.processed[key]);
     const { test, criticalValue } = tests.grubbs(values);
     sample.grubbsCriticalValue = criticalValue;
     for (let i = 0; i < sampleWells.length; i++) {
       if (ids.includes(sampleWells[i].id)) {
-        const index = ids.indexOf(sampleWells[i].id)
+        const index = ids.indexOf(sampleWells[i].id);
         sampleWells[i].test.push({
           label: key,
-          color: test[index].pass? '#46FF8F': '#FF4649',
-          ...test[index]
+          color: test[index].pass ? '#46FF8F' : '#FF4649',
+          ...test[index],
         });
       } else {
-        const well = this.getWell({ id: sampleWells[i].id })
+        const well = this.getWell({ id: sampleWells[i].id });
         sampleWells[i].test.push({
           label: key,
           color: '#EAEAEA',
           value: well.analysis.processed[key],
           score: 0,
-          pass: undefined
+          pass: undefined,
         });
       }
     }
   }
-}
+};
 
-function getWellsPositions(label, options={}) {
+function getWellsPositions(label, options = {}) {
   const { columns = 10 } = options;
   const nbRow = Math.floor((label - 1) / columns);
-  const nbColumn = label - (columns * nbRow);
-  return [nbRow + 1, nbColumn]
+  const nbColumn = label - columns * nbRow;
+  return [nbRow + 1, nbColumn];
 }

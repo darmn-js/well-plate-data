@@ -35,7 +35,7 @@ describe('Sort array of wells', () => {
   });
 
   it('Sort the regarding its alphanumeric label', () => {
-    sortWells(wells, { path: 'label'});
+    sortWells(wells, { path: 'label' });
     expect(wells).toStrictEqual([
       { id: '2-A1', label: 'A1' },
       { id: '1-A2', label: 'A2' },

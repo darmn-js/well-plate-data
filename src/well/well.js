@@ -31,14 +31,14 @@ export class Well {
       reagents = [],
       analysis = {
         raw: {},
-        processed: {}
+        processed: {},
       },
       growthCurve = {
-        data: { x: [], y: [] }
+        data: { x: [], y: [] },
       },
       spectrum = {
-        data: { x: [], y: [] }
-      }
+        data: { x: [], y: [] },
+      },
     } = options;
 
     this.id = id;
@@ -124,7 +124,7 @@ export class Well {
       throw new Error(`X and Y must be arrays`);
     }
     this.growthCurve = {
-      data: growthCurve
+      data: growthCurve,
     };
   }
 
@@ -139,7 +139,7 @@ export class Well {
       throw new Error(`X and Y must be arrays`);
     }
     this.spectrum = {
-      data: spectrum
+      data: spectrum,
     };
   }
 
@@ -173,7 +173,9 @@ export class Well {
     }
     let newReagents = [];
     for (let reagent of reagents) {
-      let previousReagent = this.reagents.filter((item) => item.label === reagent.label)[0];
+      let previousReagent = this.reagents.filter(
+        (item) => item.label === reagent.label,
+      )[0];
       newReagents.push(Object.assign({}, previousReagent, reagent));
     }
     this.reagents = newReagents;
